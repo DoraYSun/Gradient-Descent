@@ -1,9 +1,11 @@
 # %%
-from sklearn import datasets
+from sklearn import datasets, model_selection
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 X, y = datasets.load_boston(return_X_y=True)
+X_train, X_val, y_train, y_val = model_selection.train_test_split(X, y, test_size=0.2)
 
 # data normalization
 X_mean = np.mean(X, axis=0)
@@ -33,20 +35,30 @@ class LinearRegression:
         self.w = np.random.randn(n_features)
         self.b = np.random.randn()
 
-    def fit(self, X, y, epochs=40):
+    def fit(self, X, y, epochs=400):
         lr = 0.01
-        losses = []
+        mean_training_losses = []
+        mean_validation_losses = []
         for epoch in range(epochs):
+            training_losses = []
+            validation_losses = []
             for X, y in train_loader:
-                pred = self.predict(X)
-                loss = self._get_mean_squared_error_loss(pred, y)
-                losses.append(loss)
-                print('Loss:', loss)
+                pred = self.predict(X_train)
+                pred_val = self.predict(X_val)
+                training_loss = self._get_mean_squared_error_loss(pred, y_train)
+                validation_loss = self._get_mean_squared_error_loss(pred_val, y_val)
+                training_losses.append(training_loss)
+                validation_losses.append(validation_loss)
                 grad_w, grab_b = self._compute_grads(X, y)
                 self.w -= lr * grad_w
                 self.b -= lr * grab_b
+            mean_training_losses.append(np.mean(training_losses))
+            mean_validation_losses.append(np.mean(validation_losses))
+            
         
-        plt.plot(losses)
+        plt.plot(mean_training_losses)
+        plt.plot(mean_validation_losses)
+        plt.legend()
         plt.show()
     
     def predict(self, X):
