@@ -1,2 +1,2 @@
 # Gradient-Descent
-Apply gradient Decent
+Apply Gradient Decent
